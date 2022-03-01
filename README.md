@@ -8,7 +8,7 @@ You can download the BCI-IV competition (2a 4-class motor imagery) dataset in it
 
 Place all of the files into a folder called [INSERT FOLDER NAME HERE].
 
-Prerequisites:
+### Prerequisites:
 python3.6
 
 numpy
