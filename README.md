@@ -10,10 +10,15 @@ Place all of the files into a folder called [INSERT FOLDER NAME HERE].
 
 Prerequisites:
 python3.6
+
 numpy
+
 sklearn
+
 pyriemann
+
 scipy
+
 pytorch4.0
 
 
