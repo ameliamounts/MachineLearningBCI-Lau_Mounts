@@ -6,7 +6,7 @@ Machine Learning and Brain Computer Interfaces (CS91.3) project. Can we use mach
 
 You can download the BCI-IV competition (2a 4-class motor imagery) dataset in it's preprocessed form here: http://bnci-horizon-2020.eu/database/data-sets
 
-Place all of the files into a folder called [INSERT FOLDER NAME HERE].
+Place all of the files into a folder called dataset.
 
 ### Prerequisites:
 python3.6
@@ -27,7 +27,7 @@ pytorch4.0
 To run the code, use the main function.
 
 ```
-python3 [ENTER MAIN PY FILE NAME HERE]
+python3 main_csp.py
 ```
 
 
