@@ -8,6 +8,15 @@ import numpy as np
 import time
 from sklearn.svm import LinearSVC, SVC
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
+from keras import layers, models
+import matplotlib.pyplot as plt
+
+
 from sklearn.model_selection import KFold
 
 # import self defined functions 
@@ -21,7 +30,10 @@ __email__ = "herschmi@ethz.ch,tinor@ethz.ch"
 class CSP_Model:
 
 	def __init__(self):
-		self.crossvalidation = False
+
+		self.model_name = 'CNN' #'Gaussian NB' #'ADA Boost' #'LDA' #'KNN' #'ADA Boost' #'Gradient Boost' #'Gaussian NB' #'linear SVM'
+
+		self.crossvalidation = True
 		self.data_path 	= 'dataset/'
 		self.svm_kernel	= 'linear' #'sigmoid' #'linear' # 'sigmoid', 'rbf', 'poly'
 		self.svm_c 	= 0.05 # 0.05 for linear, 20 for rbf, poly: 0.1
@@ -85,14 +97,37 @@ class CSP_Model:
 		feature_mat = extract_feature(self.train_data,w,self.filter_bank,self.time_windows)
 
 		# 3. Stage Train SVM Model 
-		# 2. Train SVM Model 
-		clf = LinearDiscriminantAnalysis()
-		# if self.svm_kernel == 'linear' : 
-		# 	clf = LinearSVC(C = self.svm_c, intercept_scaling=1, loss='hinge', max_iter=1000,multi_class='ovr', penalty='l2', random_state=1, tol=0.00001)
-		# else:
-		# 	clf = SVC(self.svm_c, self.svm_kernel, degree=10, gamma='auto', coef0=0.0, tol=0.001, cache_size=10000, max_iter=-1, decision_function_shape='ovr')
-		clf.fit(feature_mat,self.train_label) 
+		# 2. Train SVM Model
 		
+		print('Training', self.model_name)
+		
+		if self.model_name == 'LDA':
+			clf = LinearDiscriminantAnalysis()
+		elif self.model_name == 'KNN':
+			clf = KNeighborsClassifier()
+		elif self.model_name == 'ADA Boost':
+			clf = AdaBoostClassifier()
+		elif self.model_name == 'Gradient Boost':
+			clf = GradientBoostingClassifier()
+		elif self.model_name == 'Gaussian NB':
+			clf = GaussianNB()
+		elif self.model_name == 'linear SVM':
+			clf = LinearSVC(C = self.svm_c, intercept_scaling=1, loss='hinge', max_iter=1000,multi_class='ovr', penalty='l2', random_state=1, tol=0.00001)
+		elif self.model_name == 'CNN':
+			clf = models.Sequential()
+			clf.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(32, 32, 3)))
+			clf.add(layers.MaxPooling2D((2, 2)))
+			clf.add(layers.Conv2D(64, (3, 3), activation='relu'))
+			clf.add(layers.MaxPooling2D((2, 2)))
+			clf.add(layers.Conv2D(64, (3, 3), activation='relu'))
+			clf.summary()
+			clf.compile(optimizer='adam',
+              metrics=['accuracy'])
+		else:
+			clf = SVC(self.svm_c, self.svm_kernel, degree=10, gamma='auto', coef0=0.0, tol=0.001, cache_size=10000, max_iter=-1, decision_function_shape='ovr')
+		
+		clf.fit(feature_mat,self.train_label) 
+				
 		end_train = time.time()
 		self.train_time += end_train-start_train
 		self.train_trials += len(self.train_label)
@@ -131,11 +166,7 @@ class CSP_Model:
 				self.eval_data,self.eval_label = get_data(self.subject,False,self.data_path)
 
 
-
-
-
 def main():
-
 
 	model = CSP_Model()
 
@@ -153,9 +184,8 @@ def main():
 	# Go through all subjects 
 	for model.subject in range(1,model.NO_subjects+1):
 
-		#print("Subject" + str(model.subject)+":")
+		print("Subject" + str(model.subject)+":")
 		
-
 		if model.crossvalidation:
 			success_sub_sum = 0 
 
@@ -163,6 +193,7 @@ def main():
 				model.load_data()
 				success_sub_sum += model.run_csp()
 				print(success_sub_sum/(model.split+1))
+
 			# average over all splits 
 			success_rate = success_sub_sum/model.NO_splits
 
